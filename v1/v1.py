@@ -6,7 +6,7 @@ import uuid
 from IPython.core.magic import Magics, cell_magic, magics_class
 from common import helper
 
-compiler = '/usr/local/cuda/bin/nvcc'
+DEFAULT_COMPILER = '/usr/local/cuda/bin/nvcc'
 ext = '.cu'
 
 
@@ -19,7 +19,7 @@ class NVCCPlugin(Magics):
         self.argparser = helper.get_argparser()
 
     @staticmethod
-    def compile(file_path):
+    def compile(file_path, compiler=DEFAULT_COMPILER):
         subprocess.check_output(
             [compiler, file_path + ext, "-o", file_path + ".out", '-Wno-deprecated-gpu-targets'], stderr=subprocess.STDOUT)
 
@@ -49,7 +49,7 @@ class NVCCPlugin(Magics):
             with open(file_path + ext, "w") as f:
                 f.write(cell)
             try:
-                self.compile(file_path)
+                self.compile(file_path, compiler=(args.compiler if args.compiler else DEFAULT_COMPILER))
                 output = self.run(file_path, timeit=args.timeit)
             except subprocess.CalledProcessError as e:
                 helper.print_out(e.output.decode("utf8"))
