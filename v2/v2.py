@@ -5,7 +5,7 @@ from IPython.core.magic import Magics, cell_magic, magics_class
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
 from common import helper
 
-compiler = '/usr/local/cuda/bin/nvcc'
+DEFAULT_COMPILER = '/usr/local/cuda/bin/nvcc'
 
 
 @magics_class
@@ -26,7 +26,7 @@ class NVCCPluginV2(Magics):
         print(f'Out bin {self.out}')
 
     @staticmethod
-    def compile(output_dir, file_paths, out):
+    def compile(output_dir, file_paths, out, compiler=DEFAULT_COMPILER):
         res = subprocess.check_output(
             [compiler, '-I' + output_dir, file_paths, "-o", out, '-Wno-deprecated-gpu-targets'], stderr=subprocess.STDOUT)
         helper.print_out(res)
@@ -46,6 +46,7 @@ class NVCCPluginV2(Magics):
 
     @magic_arguments()
     @argument('-n', '--name', type=str, help='file name that will be produced by the cell. must end with .cu extension')
+    @argument('-p', '--path', type=str, help='path to the nvcc compiler', default=DEFAULT_COMPILER)
     @argument('-c', '--compile', type=bool, help='Should be compiled?')
     @cell_magic
     def cuda(self, line='', cell=None):
@@ -69,7 +70,7 @@ class NVCCPluginV2(Magics):
 
         if args.compile:
             try:
-                self.compile(self.output_dir, file_path, self.out)
+                self.compile(self.output_dir, file_path, self.out, compiler=args.path)
                 output = self.run(timeit=args.timeit)
             except subprocess.CalledProcessError as e:
                 helper.print_out(e.output.decode("utf8"))
