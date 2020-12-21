@@ -22,7 +22,7 @@ class NVCCPlugin(Magics):
     def compile(file_path, compiler=DEFAULT_COMPILER):
         print('Using compiler', compiler)
         subprocess.check_output(
-            [compiler, file_path + ext, "-o", file_path + ".out", '-O3', '-Wno-deprecated-gpu-targets', '-std=c++17'], stderr=subprocess.STDOUT)
+            [compiler, file_path + ext, "-o", file_path + ".out", '-O3', '-Wno-deprecated-gpu-targets', '-std=c++14'], stderr=subprocess.STDOUT)
 
     def run(self, file_path, timeit=False):
         if timeit:
